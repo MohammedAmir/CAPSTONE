@@ -101,7 +101,7 @@ missmap(Dinesafe, col = c("Blue","Yellow"), y.cex = 0.8, x.cex = 0.8, legend = T
 ```
 
 
-## Impute Dinesafe$REVIEW with Mean Review Value for each Review based cuisine type
+## Impute Dinesafe$REVIEW with Mean Review Value for each missing review value based cuisine type
 ```{r}
 Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="African"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="African"], na.rm=TRUE)
 Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Bakeries"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Bakeries"], na.rm=TRUE)
@@ -125,7 +125,7 @@ Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Juicery & Smoot
 
 
 
-## Impute Dinesafe$VALUE with Mean Value for each based cuisine type
+## Impute Dinesafe$VALUE with Mean Value for each missing value based cuisine type
 ```{r}
 Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="African"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="African"], na.rm=TRUE)
 Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Bakeries"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Bakeries"], na.rm=TRUE)
