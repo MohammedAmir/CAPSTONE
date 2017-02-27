@@ -1,0 +1,196 @@
+---
+title: "DineSafe"
+author: "Mohammed Amir"
+date: "February 26, 2017"
+output: word_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(lubridate)
+library(Amelia)
+```
+
+## Load Dataset
+```{r}
+Dinesafe = read.csv("D:/CAPSTONE/data/DineSafe_02162017.csv")
+Address  = read.csv("D:/CAPSTONE/data/ADDRESS_02262017.csv")
+
+```
+
+## Review dimension of dataset
+```{r}
+dim(Dinesafe)
+dim(Address)
+```
+
+
+## Review summary of dinesafe
+```{r}
+summary(Dinesafe)
+summary(Address)
+```
+
+## Review structure of dataset
+```{r}
+str(Dinesafe)
+str(Address)
+```
+
+### Merge Dinesafe and Address dataset based on establishment id column
+```{r}
+Dinesafe <- merge(Dinesafe,Address,by="ESTABLISHMENT_ID")
+```
+
+## Remove Columns from data set 
+```{r}
+### Remove COURT_OUTCOME and AMOUNT_FINED Columns from Dinesafe dataset
+Dinesafe <- subset(Dinesafe, select = -c(ROW_ID, COURT_OUTCOME,AMOUNT_FINED) )
+
+### Remove Establishement Name from Address dataset to avoid duplicate rows 
+Dinesafe <- subset(Dinesafe, select = -c(ESTABLISHMENT_NAME.y, ESTABLISHMENT_ADDRESS) )
+
+## Rename ESTABLISHMENT_NAME.x column name to ESTABLISHMENT_NAME
+colnames(Dinesafe)[colnames(Dinesafe) == 'ESTABLISHMENT_NAME.x'] <- 'ESTABLISHMENT_NAME'
+
+```
+
+
+## Convert VALUE from factor to numeric Data Structure
+```{r}
+## use suppressWarnings to avoid getting "NAs introduced by coercion"
+Dinesafe$VALUE <- suppressWarnings(as.numeric(as.character(Dinesafe$VALUE)))
+
+```
+
+
+## Convert INSPECTION_DATE from factor to Date Data Structure
+```{r}
+Dinesafe$INSPECTION_DATE <- dmy(as.character(Dinesafe$INSPECTION_DATE)) 
+```
+
+## Convert INSPECTION_DATE from factor to Date Data Structure
+```{r}
+Dinesafe$ESTABLISHMENT_STATUS <- as.character(Dinesafe$ESTABLISHMENT_STATUS) 
+Dinesafe$SEVERITY <- as.character(Dinesafe$SEVERITY)
+```
+
+## Show Complete Case Rows with no missing (NA) value
+```{r}
+Dinesafe_CS  <- Dinesafe[complete.cases(Dinesafe),]
+Dinesafe_CS
+nrow(Dinesafe_CS)
+
+```
+
+## Show Rows with Missing (NA) value
+```{r}
+Dinesafe_NA  <- Dinesafe[!complete.cases(Dinesafe),]
+Dinesafe_NA
+nrow(Dinesafe_NA)
+```
+
+## Show missingness in Dinesafe dataset
+```{r}
+
+#Display and quantify missing values
+apply(Dinesafe, 2, function(x) sum(is.na(x)))
+ 
+# Plot missingness map
+missmap(Dinesafe, col = c("Blue","Yellow"), y.cex = 0.8, x.cex = 0.8, legend = TRUE, rank.order = "False" ,main = "Dinesafe missingness map", y.labels = NULL,y.at = NULL)
+```
+
+```{r}
+
+```
+
+## Impute Dinesafe$REVIEW with Mean Review Value for each missing review value based cuisine type
+```{r}
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="African"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="African"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Bakeries"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Bakeries"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Bar"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Bar"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Cafe"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Cafe"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Caribbean"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Caribbean"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Deli"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Deli"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Dessert"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Dessert"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="European"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="European"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Far Eastern"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Far Eastern"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Pastries"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Pastries"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="South Asian"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="South Asian"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="South East Asian"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="South East Asian"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Latin American"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Latin American"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Mediterranean"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Mediterranean"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Middle Eastern"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Middle Eastern"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="North American"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="North American"], na.rm=TRUE)
+Dinesafe$REVIEW[is.na(Dinesafe$REVIEW) & Dinesafe$CUISINE_TYPE=="Juicery & Smoothies"] = mean(Dinesafe$REVIEW[Dinesafe$CUISINE_TYPE=="Juicery & Smoothies"], na.rm=TRUE)
+
+```
+
+
+
+## Impute Dinesafe$VALUE with Mean Value for each missing value based cuisine type
+```{r}
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="African"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="African"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Bakeries"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Bakeries"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Bar"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Bar"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Cafe"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Cafe"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Caribbean"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Caribbean"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Deli"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Deli"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Dessert"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Dessert"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="European"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="European"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Far Eastern"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Far Eastern"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Pastries"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Pastries"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="South Asian"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="South Asian"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="South East Asian"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="South East Asian"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Latin American"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Latin American"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Mediterranean"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Mediterranean"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Middle Eastern"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Middle Eastern"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="North American"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="North American"], na.rm=TRUE)
+Dinesafe$VALUE[is.na(Dinesafe$VALUE) & Dinesafe$CUISINE_TYPE=="Juicery & Smoothies"] = mean(Dinesafe$VALUE[Dinesafe$CUISINE_TYPE=="Juicery & Smoothies"], na.rm=TRUE)
+
+```
+
+## Double Check Rows with Missing (NA) value after imputation
+```{r}
+Dinesafe_CS1  <- Dinesafe[complete.cases(Dinesafe),]
+Dinesafe_CS1
+nrow(Dinesafe_CS1)
+
+Dinesafe_NA1  <- Dinesafe[!complete.cases(Dinesafe),]
+Dinesafe_NA1
+nrow(Dinesafe_NA1)
+
+```
+
+```{r}
+
+```
+
+### Univariate Visualization     
+```{r}
+hist(Dinesafe$REVIEW, xlab = "Review Point", main="Histogram for Diner Review", 
+  border="blue", col="GREEN", las=1, breaks=5,prob = TRUE)
+
+hist(Dinesafe$VALUE, xlab = "Value Point", main="Histogram for Diner Value", 
+     border="blue", col="YELLOW", las=1, breaks=5,prob = TRUE)
+
+
+
+
+```
+
+```{r}
+status <- table(Dinesafe$CUISINE_TYPE)
+barplot(status, main="Cuisine Type",xlab="Cuisine Type", ylab="premises Count", beside=TRUE, col = rainbow(17))
+```
+
+```{r}
+status <- table(Dinesafe$ESTABLISHMENT_STATUS)
+barplot(status, main="Food Hygiene Inspection Result",xlab="Inspection Result", ylab="Establishment Count", col=c("red","yellow","green"), beside=TRUE)
+
+
+```
+
+
