@@ -13,6 +13,7 @@ library(lubridate) ## Convert factor to date correctly
 library(Amelia)    ## Missingness map
 library(ggmap)
 library(ggplot2)
+library(corrplot)
 ```
 
 ## Load Dataset
@@ -93,8 +94,7 @@ Dinesafe$ESTABLISHMENT_TYPE  <- as.character(Dinesafe$ESTABLISHMENT_TYPE)
 Dinesafe$ESTABLISHMENT_STATUS <- as.character(Dinesafe$ESTABLISHMENT_STATUS) 
 Dinesafe$SEVERITY <- as.character(Dinesafe$SEVERITY)
 Dinesafe$ACTION <- as.character(Dinesafe$ACTION)
-Dinesafe$ACTION <- as.character(Dinesafe$ACTION)
-Dinesafe$ACTION <- as.character(Dinesafe$ACTION)
+
 
 ```
 
@@ -194,25 +194,37 @@ nrow(Dinesafe_NA1)
 
 ### Univariate Analysis     
 ```{r , results='hide'}
-hist(Dinesafe$REVIEW, xlab = "Review Rating", main="Histogram of Diner Review", 
-  border="blue", col="GREEN", las=1, breaks=5,prob = TRUE)
+## Review Rating histograpm graph
+hist(Dinesafe$REVIEW, xlab = "Review Rating", main="Histogram of Diner Review", border="blue", col="GREEN", las=1, breaks=5,prob = TRUE)
 
-hist(Dinesafe$VALUE, xlab = "Dollar Value", main="Histogram of Diner Value", 
-     border="blue", col="YELLOW", las=1, breaks=5,prob = TRUE)
+## Value histograpm graph
+hist(Dinesafe$VALUE, xlab = "Dollar Value", main="Histogram of Diner Value", border="blue", col="YELLOW", las=1, breaks=5,prob = TRUE)
+
+## CUISINE TYPE FREQUECY
+Cuisin <- table(Dinesafe$CUISINE_TYPE)
+barplot(Cuisin, main="Cuisine Type", ylab="Frequency", beside=TRUE, col = rainbow(17),las=2, horiz=FALSE)
+
+## Food Hygiene Inspection Result
+Inspection <- table(Dinesafe$ESTABLISHMENT_STATUS)
+barplot(Inspection, main="Food Hygiene Inspection Result", xlab="Inspection Result", ylab="Establishment Count", col=c("red","yellow","green"), beside=TRUE)
+
+## Food Hygiene Inspection Result
+Severity <- table(Dinesafe$SEVERITY)
+barplot(Severity, main="Food Hygiene Inspection Severity", xlab="", ylab="Count", col=c("red","yellow","green","White","Orange"), beside=TRUE,las=2)
+
+## Food Hygiene Inspection Result
+Type <- table(Dinesafe$ESTABLISHMENT_TYPE)
+barplot(Type, main="Establishment Type", xlab="", ylab="Count", col=c("red","yellow","green","White","Orange"), beside=TRUE,las=2)
+
 ```
 
 ```{r  , results='hide'}
-## CUISINE TYPE FREQUECY
-status <- table(Dinesafe$CUISINE_TYPE)
-barplot(status, main="Cuisine Type", ylab="Frequency", beside=TRUE, col = rainbow(17),las=2, horiz=FALSE)
+Dinesafe$ESTABLISHMENT_STATUS <- factor(Dinesafe$ESTABLISHMENT_STATUS, levels = c("Closed","Conditional Pass","Pass"))
+Dinesafe$SEVERITY <- factor(Dinesafe$SEVERITY, levels = c("NA - Not Applicable", "N - No Action", "M - Minor", "S - Significant", "C - Crucial"))
 
-## Food Hygiene Inspection Result
-status <- table(Dinesafe$ESTABLISHMENT_STATUS)
-barplot(status, main="Food Hygiene Inspection Result", xlab="Inspection Result", ylab="Establishment Count", col=c("red","yellow","green"), beside=TRUE)
-
-## Food Hygiene Inspection Result
-status1 <- table(Dinesafe$SEVERITY)
-barplot(status1, main="Food Hygiene Inspection Severity", xlab="", ylab="Count", col=c("red","yellow","green","White","Orange"), beside=TRUE,las=2)
+boxplot(REVIEW ~ ESTABLISHMENT_STATUS, Dinesafe, col=rainbow(3))
+boxplot(REVIEW ~ SEVERITY, Dinesafe, col=rainbow(5))
+##boxplot(Alert~interaction(Period, Vis.Level, lex.order=T), dd)
 ```
 
 ```{r , results='hide'}
@@ -225,18 +237,43 @@ boxplot(Dinesafe$VALUE,
         main = toupper("Boxplot of VALUE"),
         ylab = "Value",
         col = "green")
-
-
 ```
 
+
 ### Bivariate Analysis & Visualization 
+
 ```{r , results='hide'}
+
+
+##boxplot(Dinesafe$REVIEW, Dinesafe$CUISINE_TYPE)
+##boxplot(x1,x2,x3,data=dat)
+
 ## Inspection outcome by Cuisine Stype
 Inspection_Status_By_Cuisine_Type <- table(Dinesafe$CUISINE_TYPE, Dinesafe$ESTABLISHMENT_STATUS)
 Inspection_Status_By_Cuisine_Type
 
-
 ##Scatter plot of restaurant review rating vs value
 plot(Dinesafe$REVIEW, Dinesafe$VALUE, xlab="Review",ylab="Value",col=c("red","black"),cex=2) 
+
+
+```
+
+```{r , results='hide'}
+plot(Dinesafe$CUISINE_TYPE, Dinesafe$REVIEW)
+
+```
+
+
+```{r , results='hide'}
+
+library(lattice)
+library(survival)
+library(Formula)
+library(Hmisc)
+##rcorr(Dinesafe$REVIEW, Dinesafe$CUISINE_TYPE, method = "spearman")
+rcorr(Dinesafe$REVIEW ,Dinesafe$CUISINE_TYPE, type="spearman")
+###rcorr(x, y, type=c("pearson","spearman"))
+
+require(reshape2)
 
 ```
