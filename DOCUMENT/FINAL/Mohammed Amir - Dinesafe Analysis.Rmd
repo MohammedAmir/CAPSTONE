@@ -1,7 +1,7 @@
 ---
-title: "CKME136 - CAPSTONE - 1.2"
+title: "CKME136 - CAPSTONE - Exploration & Analysis"
 author: "Mohammed Amir"
-date: "March 5, 2017"
+date: "April 17, 2017"
 output: word_document
 ---
 
@@ -206,10 +206,12 @@ Step 5 - Data Exploratory Analysis and Visualization
 hist(Dinesafe$REVIEW, col="GREEN")  
 hist(Dinesafe$VALUE,col="YELLOW")   
 
+```
 
-## Histogram Density graph
-hist(Dinesafe$REVIEW, xlab = "Review Rating", main="Histogram of Diner Review", border="blue", col="GREEN", las=1, breaks=5,prob = TRUE)
-hist(Dinesafe$VALUE, xlab = "Dollar Value", main="Histogram of Diner Value", border="blue", col="YELLOW", las=1, breaks=5,prob = TRUE)
+```{r , results='hide'}
+## Kernel Density Plots
+Review <- density(Dinesafe$REVIEW)  
+plot(Review)
 
 ```
 

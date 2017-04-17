@@ -1,0 +1,250 @@
+---
+title: "Recommendation 1.1"
+author: "Mohammed Amir"
+date: "April 6, 2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r , results='hide'}
+library(ISLR)
+library(caret)
+
+```
+
+
+```{r , results='hide'}
+
+Dinesafe = read.csv("D:/CAPSTONE/CAPSTONE/DATASET/Final_DineSafe.csv", na.strings='NULL')
+Dinesafe <- data.frame(Dinesafe$ESTABLISHMENT_ID, Dinesafe$REVIEW, Dinesafe$VALUE, Dinesafe$CUISINE_TYPE)
+Dinesafe <-  unique(Dinesafe)
+str(Dinesafe)
+
+```
+
+
+```{r , results='hide'}
+## Index the cuisine Type label
+CUISINE_IDX <- function(CUISINE)
+{
+    if(CUISINE == "African")
+    {
+        print ("1")
+    }
+        else
+        {
+            if(CUISINE == "Bakeries")
+            {
+              print ("2")  
+            }
+              else
+                {
+                  if(CUISINE == "Bar")
+                    {
+                      print ("3")  
+                    }
+                      else
+                        {
+                          if(CUISINE == "Cafe")
+                          {
+                           print ("4")  
+                          }
+                          else
+                            {
+                              if(CUISINE == "Caribbean")
+                               {
+                                print ("5")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Deli")
+                               {
+                                print ("6")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Dessert")
+                               {
+                                print ("7")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "European")
+                               {
+                                print ("8")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Far Eastern")
+                               {
+                                print ("9")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Mediterranean")
+                               {
+                                print ("10")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Middle Eastern")
+                               {
+                                print ("11")  
+                              }
+                              else
+                                {
+                                 if(CUISINE == "North American")
+                               {
+                                print ("12")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Juicery")
+                               {
+                                print ("13")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Pastries")
+                               {
+                                print ("14")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "South Asian")
+                               {
+                                print ("15")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "South East Asian")
+                               {
+                                print ("16")  
+                              }
+                              else
+                                {
+                                   if(CUISINE == "Latin American")
+                               {
+                                print ("17")  
+                              }
+                              else
+                                {
+                                  print ("0")
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                            }
+                        }
+                
+                }
+          }
+}
+
+## Apply the Index function to cuisine type column
+Dinesafe$CUISINE_IDX <- mapply(CUISINE_IDX,Dinesafe$Dinesafe.CUISINE_TYPE)
+Dinesafe
+```
+
+
+```{r , results='hide'}
+## Remove establishment id and Cuisine Type Columns from data frame
+ Dinesafe <- Dinesafe[,-c(1, 4)] 
+
+```
+
+
+```{r , results='hide'}
+
+## Convert Cuisine Index from factor to numeric value
+Dinesafe$CUISINE_IDX <- as.numeric((Dinesafe$CUISINE_IDX))
+head(Dinesafe)
+str(Dinesafe)
+```
+
+
+```{r , results='hide'}
+## Normalize data using scale function using  using caret package
+Dinesafe_normal  <- scale(Dinesafe)
+head(Dinesafe_normal)
+
+```
+
+
+```{r , results='hide'}
+## Randomize the dataset selection
+rand <- runif(nrow(Dinesafe_normal))
+Dinesafe_random <- Dinesafe_normal[order(rand),]
+
+## Split training to test dataset
+df_train <- Dinesafe_random[1:2000,]    ## two third of data set for training
+df_test  <- Dinesafe_random[2001:2723,] ## one third of data set for testing
+
+df_train_target <- Dinesafe[1:2000,4]
+df_test_target  <- Dinesafe[2001:2723,4]
+
+head(df_train)
+head(df_test)
+
+```
+
+
+```{r , results='hide'}
+# Determine best K value in KNN Crosss Validation
+set.seed(3333)
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+set.seed(3333)
+knn_fit <- train(CUISINE_IDX ~., data = df_train, method = "knn",trControl=trctrl, preProcess = c("center", "scale"),tuneLength = 10)
+knn_fit
+plot(knn_fit)
+```
+
+
+```{r , results='hide'}
+## Build KNN Model
+## KNN Class
+require(class)
+library(class)
+k = 9  ## sqrt(nrow(Dinesafe2))
+
+result <- knn(train = df_train, test = df_test, cl=df_train_target , k)
+
+#validate
+table(result , df_test_target)
+
+```
+
+
+```{r , results='hide'}
+
+```
+
+
+```{r , results='hide'}
+
+```
+
+
+```{r , results='hide'}
+
+```
+
+```{r pressure, echo=FALSE}
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

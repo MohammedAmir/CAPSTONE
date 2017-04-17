@@ -1,0 +1,286 @@
+---
+title: "KNN 03"
+author: "Mohammed Amir"
+date: "April 7, 2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(class)
+```
+
+
+```{r}
+Dinesafe = read.csv("D:/CAPSTONE/CAPSTONE/DATASET/Final_DineSafe.csv", na.strings='NULL')
+
+## select a subset of dataset
+Dinesafe_subset <- Dinesafe[c(2,5:7)]
+
+## Select unique rows
+Dinesafe_unique <-  unique(Dinesafe_subset)
+
+```
+
+
+
+```{r}
+## Index the cuisine Type label
+CUISINE_IDX <- function(CUISINE)
+{
+  if(CUISINE == "African")
+  {
+    print ("1")
+  }
+  else
+  {
+    if(CUISINE == "Bakeries")
+    {
+      print ("2")  
+    }
+    else
+    {
+      if(CUISINE == "Bar")
+      {
+        print ("3")  
+      }
+      else
+      {
+        if(CUISINE == "Cafe")
+        {
+          print ("4")  
+        }
+        else
+        {
+          if(CUISINE == "Caribbean")
+          {
+            print ("5")  
+          }
+          else
+          {
+            if(CUISINE == "Deli")
+            {
+              print ("6")  
+            }
+            else
+            {
+              if(CUISINE == "Dessert")
+              {
+                print ("7")  
+              }
+              else
+              {
+                if(CUISINE == "European")
+                {
+                  print ("8")  
+                }
+                else
+                {
+                  if(CUISINE == "Far Eastern")
+                  {
+                    print ("9")  
+                  }
+                  else
+                  {
+                    if(CUISINE == "Mediterranean")
+                    {
+                      print ("10")  
+                    }
+                    else
+                    {
+                      if(CUISINE == "Middle Eastern")
+                      {
+                        print ("11")  
+                      }
+                      else
+                      {
+                        if(CUISINE == "North American")
+                        {
+                          print ("12")  
+                        }
+                        else
+                        {
+                          if(CUISINE == "Juicery")
+                          {
+                            print ("13")  
+                          }
+                          else
+                          {
+                            if(CUISINE == "Pastries")
+                            {
+                              print ("14")  
+                            }
+                            else
+                            {
+                              if(CUISINE == "South Asian")
+                              {
+                                print ("15")  
+                              }
+                              else
+                              {
+                                if(CUISINE == "South East Asian")
+                                {
+                                  print ("16")  
+                                }
+                                else
+                                {
+                                  if(CUISINE == "Latin American")
+                                  {
+                                    print ("17")  
+                                  }
+                                  else
+                                  {
+                                    print ("0")
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+    }
+  }
+}
+
+## Apply the Index function to cuisine type column
+Dinesafe_unique$CUISINE_IDX <- mapply(CUISINE_IDX,Dinesafe_unique$CUISINE_TYPE)
+```
+
+
+```{r}
+Dinesafe_unique$CUISINE_IDX <- as.numeric(Dinesafe_unique$CUISINE_IDX)
+str(Dinesafe_unique)
+head(Dinesafe_unique)
+```
+
+```{r}
+set.seed(9850)
+gp <- runif(nrow(Dinesafe_unique))
+Dinesafe2 <- Dinesafe_unique[order(gp),]
+head(Dinesafe2)
+```
+
+
+```{r}
+#Normalize the dataset feature
+normalize <- function(x)
+{
+num <- x - min(x)
+denom <- max(x) - min(x)
+return (num/denom)
+}
+
+```
+
+
+```{r}
+#Apply normalize to dataset feature
+feature_norm <- as.data.frame(lapply(Dinesafe2[,c(2,3,5)], normalize))
+str(feature_norm)
+
+```
+
+
+```{r}
+## create a feature
+#feature <- Dinesafe_unique[,-c(1, 4)] 
+#heada(feature)
+Dine_train <- feature_norm[1:2000,]
+Dine_test <- feature_norm[2001:2723,]
+
+Dine_trainLabel <- Dinesafe2[1:2000,4]
+Dine_testLabel <- Dinesafe2[2001:2723,4]
+
+nrow(Dine_train)
+nrow(Dine_test)
+nrow(feature_norm)
+nrow(Dinesafe2)
+
+```
+
+```{r , results='hide'}
+# Determine best K value in KNN Crosss Validation
+set.seed(3333)
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+knn_fit <- train(CUISINE_IDX ~., data = Dine_train, method = "knn", trControl=trctrl, preProcess = c("center", "scale"),tuneLength = 10)
+knn_fit
+plot(knn_fit)
+```
+
+
+```{r}
+sqrt(2723)
+model <- knn(train = Dine_train, test = Dine_test, cl = Dine_trainLabel, k = 11)
+model
+table (Dine_testLabel, model)
+
+
+
+```
+
+
+```{r}
+
+confusionMatrix(model, Dine_testLabel )
+
+```
+
+
+```{r}
+
+
+
+```
+
+
+```{r}
+
+
+
+```
+
+
+```{r}
+
+
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

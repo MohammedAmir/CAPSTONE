@@ -1,0 +1,235 @@
+---
+title: "KNN"
+author: "Mohammed Amir"
+date: "April 6, 2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r , results='hide'}
+Dinesafe = read.csv("D:/CAPSTONE/CAPSTONE/DATASET/Final_DineSafe.csv", na.strings='NULL')
+Dinesafe <-  Dinesafe <- Dinesafe[,-c(1, 3:4,8:17)] 
+Dinesafe <- unique(Dinesafe)
+nrow(Dinesafe)
+str(Dinesafe)
+##summary(Dinesafe)
+```
+
+
+```{r , results='hide'}
+
+CUISINE_IDX <- function(CUISINE)
+{
+    if(CUISINE == "African")
+    {
+        print ("1")
+    }
+        else
+        {
+            if(CUISINE == "Bakeries")
+            {
+              print ("2")  
+            }
+              else
+                {
+                  if(CUISINE == "Bar")
+                    {
+                      print ("3")  
+                    }
+                      else
+                        {
+                          if(CUISINE == "Cafe")
+                          {
+                           print ("4")  
+                          }
+                          else
+                            {
+                              if(CUISINE == "Caribbean")
+                               {
+                                print ("5")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Deli")
+                               {
+                                print ("6")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Dessert")
+                               {
+                                print ("7")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "European")
+                               {
+                                print ("8")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Far Eastern")
+                               {
+                                print ("9")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Mediterranean")
+                               {
+                                print ("10")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Middle Eastern")
+                               {
+                                print ("11")  
+                              }
+                              else
+                                {
+                                 if(CUISINE == "North American")
+                               {
+                                print ("12")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Juicery")
+                               {
+                                print ("13")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "Pastries")
+                               {
+                                print ("14")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "South Asian")
+                               {
+                                print ("15")  
+                              }
+                              else
+                                {
+                                  if(CUISINE == "South East Asian")
+                               {
+                                print ("16")  
+                              }
+                              else
+                                {
+                                   if(CUISINE == "Latin American")
+                               {
+                                print ("17")  
+                              }
+                              else
+                                {
+                                  print ("0")
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                                }
+                            }
+                        }
+                
+                }
+          }
+  }
+
+Dinesafe$CUISINE_IDX <- mapply(CUISINE_IDX,Dinesafe$Dinesafe.CUISINE_TYPE)
+head(Dinesafe)
+
+```
+
+
+```{r , results='hide'}
+##Change data type to numeric
+
+df <- subset(Dinesafe2, select = c(Dinesafe.REVIEW,Dinesafe.VALUE, CUISINE_IDX)) ##
+df$CUISINE_IDX <- as.numeric((df$CUISINE_IDX))
+
+str(df)
+head(df)
+```
+
+
+```{r , results='hide'}
+## Normalize data 
+##df_normal <- data.frame(as.numeric(Dinesafe2$CUISINE_IDX))
+scaleit  <- scale(df)
+head(scaleit)
+
+
+```
+
+
+```{r , results='hide'}
+## Split training to test dataset
+##set.seed(123)
+df_random <- scaleit
+#n <- nrow(scaleit)
+
+rand <- runif(nrow(scaleit))
+df_random <- scaleit[order(rand),]
+df_train <- df_random[1:2000,]    ## two third of data set for training
+df_test  <- df_random[2001:2723,] ## one third of data set for testing
+
+df_train_target <- Dinesafe2[1:2000,4]
+df_test_target  <- Dinesafe2[2001:2723,4]
+
+#head(scaleit)
+head(df_train)
+head(df_test)
+```
+
+
+```{r , results='hide'}
+# Best K value determination
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+set.seed(3333)
+knn_fit <- train(CUISINE_IDX ~., data = df_train, method = "knn",trControl=trctrl, preProcess = c("center", "scale"),tuneLength = 10)
+knn_fit
+plot(knn_fit)
+
+##test_pred <- predict(knn_fit, newdata = df_test)
+##test_pred
+```
+
+
+```{r , results='hide'}
+## KNN Class
+require(class)
+library(class)
+k = 7  ## sqrt(nrow(Dinesafe2))
+
+result <- knn(train = df_train, test = df_test, cl=df_train_target , k)
+
+#validate
+table(result , df_test_target)
+``` 
+
+    
+
+```{r , results='hide'}
+##confusion matrix (predict , reference)
+library(caret)
+confusionMatrix(result, df_test_target)
+```
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
